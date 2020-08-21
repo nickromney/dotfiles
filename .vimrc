@@ -9,8 +9,11 @@
 " Specify a directory for plugins.
 call plug#begin('~/.vim/plugged')
 
-" Atom One Dark / Light theme.
-Plug 'rakr/vim-one'
+" Sonokai theme
+Plug 'sainnhe/sonokai'
+
+" airline
+" Plug 'vim-airline/vim-airline'
 
 " Integrate fzf with Vim.
 Plug '~/.fzf'
