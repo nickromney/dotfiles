@@ -13,7 +13,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'sainnhe/sonokai'
 
 " airline
-" Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline'
 
 " Integrate fzf with Vim.
 Plug '~/.fzf'
@@ -139,7 +139,7 @@ endif
 syntax on
 
 " Set the color scheme.
-colorscheme one
+colorscheme sonokai
 set background=dark
 
 " -----------------------------------------------------------------------------
