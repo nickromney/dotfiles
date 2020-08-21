@@ -208,7 +208,7 @@ set shortmess+=c
 set showmode
 set smartcase
 set softtabstop=2
-set spelllang=en_us
+set spelllang=en_gb
 set splitbelow
 set splitright
 set tabstop=2
