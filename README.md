@@ -140,6 +140,7 @@ mkdir -p ~/.local/bin && mkdir -p ~/.vim/spell \
   && ln -s ~/dotfiles/.tmux.conf ~/.tmux.conf \
   && ln -s ~/dotfiles/.vimrc ~/.vimrc \
   && ln -s ~/dotfiles/.vim/spell/en.utf-8.add ~/.vim/spell/en.utf-8.add \
+  && ln -s ~/dotfiles/.zshrc ~/.zshrc \
   && ln -s ~/dotfiles/.local/bin/toggle-dark-mode ~/.local/bin/toggle-dark-mode \
   && sudo ln -s ~/dotfiles/etc/wsl.conf /etc/wsl.conf
 
