@@ -68,3 +68,16 @@ alias open="/c/Program\ Files\ \(x86\)/Google/Chrome/Application/chrome.exe"
 alias drop_cache="sudo sh -c \"echo 3 >'/proc/sys/vm/drop_caches' && swapoff -a && swapon -a && printf '\n%s\n' 'Ram-cache and Swap Cleared'\""
 
 alias toggle-dark-mode="toggle-dark-mode && source ${HOME}/.bashrc"
+
+# From https://github.com/nicknisi/dotfiles/blob/master/zsh/zshrc.symlink
+
+# use nvim, but don't make me think about it
+[[ -n "$(command -v nvim)" ]] && alias vim="nvim"
+
+# Filesystem aliases
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+
+alias cdtv="cd ~/work/tv"

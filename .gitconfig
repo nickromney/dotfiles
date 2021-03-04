@@ -54,3 +54,6 @@
 
 [includeIf "gitdir:~/writing/"]
     path = ~/dotfiles/.gitconfig.personal
+
+[includeIf "gitdir:/c/writing/"]
+    path = ~/dotfiles/.gitconfig.personal

@@ -1,5 +1,5 @@
 " -----------------------------------------------------------------------------
-" This config is targeted for Vim 8.0+ and expects you to have Plug installed.
+" This config is targeted for Vim 8.1+ and expects you to have Plug installed.
 " -----------------------------------------------------------------------------
 
 " -----------------------------------------------------------------------------
@@ -9,11 +9,8 @@
 " Specify a directory for plugins.
 call plug#begin('~/.vim/plugged')
 
-" Sonokai theme
-Plug 'sainnhe/sonokai'
-
-" airline
-Plug 'vim-airline/vim-airline'
+" Atom One Dark / Light theme.
+Plug 'rakr/vim-one'
 
 " Integrate fzf with Vim.
 Plug '~/.fzf'
@@ -30,12 +27,10 @@ Plug 'tmux-plugins/vim-tmux-focus-events'
 
 " Navigate and manipulate files in a tree view.
 Plug 'lambdalisue/fern.vim'
+Plug 'lambdalisue/fern-mapping-mark-children.vim'
 
 " Helpers for moving and manipulating files / directories.
 Plug 'tpope/vim-eunuch'
-
-" Launch Ranger from Vim.
-Plug 'francoiscabrol/ranger.vim'
 
 " Run a diff on 2 directories.
 Plug 'will133/vim-dirdiff'
@@ -120,6 +115,8 @@ Plug 'vim-python/python-syntax'
 Plug 'vim-ruby/vim-ruby'
 Plug 'wgwoods/vim-systemd-syntax'
 
+Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
+
 call plug#end()
 
 " -----------------------------------------------------------------------------
@@ -139,7 +136,7 @@ endif
 syntax on
 
 " Set the color scheme.
-colorscheme sonokai
+colorscheme one
 set background=dark
 
 " -----------------------------------------------------------------------------
@@ -177,7 +174,9 @@ set clipboard=unnamedplus
 set colorcolumn=80
 set complete+=kspell
 set completeopt=menuone,longest
-set cryptmethod=blowfish2
+if has('cryptv')
+  set cryptmethod=blowfish2
+endif
 set cursorline
 set directory=/tmp//,.
 set encoding=utf-8
@@ -208,14 +207,18 @@ set shortmess+=c
 set showmode
 set smartcase
 set softtabstop=2
-set spelllang=en_gb
+set spelllang=en_us
 set splitbelow
 set splitright
 set tabstop=2
 set textwidth=0
 set ttimeout
+set timeoutlen=1000
+set ttimeoutlen=0
 set ttyfast
-set ttymouse=sgr
+if !has('nvim')
+  set ttymouse=sgr
+endif
 set undodir=/tmp
 set undofile
 set virtualedit=block
@@ -226,10 +229,11 @@ set wrap
 
 runtime! macros/matchit.vim
 
-hi SpellBad cterm=underline ctermfg=9
-hi SpellLocal cterm=underline ctermfg=9
-hi SpellRare cterm=underline ctermfg=9
-hi SpellCap cterm=underline
+" Spelling mistakes will also be colored red if you uncomment the colors.
+hi SpellBad cterm=underline "ctermfg=203 guifg=#ff5f5f
+hi SpellLocal cterm=underline "ctermfg=203 guifg=#ff5f5f
+hi SpellRare cterm=underline "ctermfg=203 guifg=#ff5f5f
+hi SpellCap cterm=underline "ctermfg=203 guifg=#ff5f5f
 
 " -----------------------------------------------------------------------------
 " Basic mappings
@@ -362,12 +366,23 @@ augroup CursorLine
     au WinLeave * setlocal nocursorline
 augroup END
 
+" Mappings to make Vim more friendly towards presenting slides.
+autocmd BufNewFile,BufRead *.vpm call SetVimPresentationMode()
+function SetVimPresentationMode()
+  nnoremap <buffer> <Right> :n<CR>
+  nnoremap <buffer> <Left> :N<CR>
+
+  if !exists('#goyo')
+    Goyo
+  endif
+endfunction
+
 " ----------------------------------------------------------------------------
 " Basic commands
 " ----------------------------------------------------------------------------
 
 " Add all TODO items to the quickfix list relative to where you opened Vim.
-function! s:todo() abort
+function! s:todo() dict abort
   let entries = []
   for cmd in ['git grep -niIw -e TODO -e FIXME 2> /dev/null',
             \ 'grep -rniIw -e TODO -e FIXME . 2> /dev/null']
@@ -429,7 +444,7 @@ let g:fzf_colors =
 
 let g:fzf_action = {
   \ 'ctrl-t': 'tab split',
-  \ 'ctrl-x': 'split',
+  \ 'ctrl-b': 'split',
   \ 'ctrl-v': 'vsplit',
   \ 'ctrl-y': {lines -> setreg('*', join(lines, "\n"))}}
 
@@ -490,9 +505,10 @@ function! FernInit() abort
   nmap <buffer> d <Plug>(fern-action-remove)
   nmap <buffer> m <Plug>(fern-action-move)
   nmap <buffer> M <Plug>(fern-action-rename)
-  nmap <buffer> h <Plug>(fern-action-hidden-toggle)j
+  nmap <buffer> h <Plug>(fern-action-hidden-toggle)
   nmap <buffer> r <Plug>(fern-action-reload)
-  nmap <buffer> k <Plug>(fern-action-mark-toggle)j
+  nmap <buffer> k <Plug>(fern-action-mark)
+  nmap <buffer> K <Plug>(fern-action-mark-children:leaf)
   nmap <buffer> b <Plug>(fern-action-open:split)
   nmap <buffer> v <Plug>(fern-action-open:vsplit)
   nmap <buffer><nowait> < <Plug>(fern-action-leave)
@@ -583,7 +599,7 @@ let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 let test#strategy='vimterminal'
 
 let test#python#runner='pytest'
-let test#python#pytest='docker-compose exec web py.test'
+let test#python#pytest#executable='docker-compose exec web py.test'
 
 let test#elixir#exunit#executable='docker-compose exec -e MIX_ENV=test web mix test'
 
@@ -592,3 +608,11 @@ nmap <silent> t<C-f> :TestFile<CR>
 nmap <silent> t<C-a> :TestSuite<CR>
 nmap <silent> t<C-l> :TestLast<CR>
 nmap <silent> t<C-g> :TestVisit<CR>
+
+
+" .............................................................................
+" From mattboehm's vimrc
+" .............................................................................
+
+"use jj to escape from insert mode
+inoremap jj <esc>
