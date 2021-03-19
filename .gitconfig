@@ -57,3 +57,5 @@
 
 [includeIf "gitdir:/c/writing/"]
     path = ~/dotfiles/.gitconfig.personal
+[gpg]
+	program = gpg2

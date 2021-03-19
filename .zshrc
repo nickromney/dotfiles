@@ -82,5 +82,10 @@ preexec_functions=($preexec_functions tabtitle_preexec)
 [ -f ~/.p10k.zsh ] && source ~/.p10k.zsh
 
 export AWS_VAULT_PASS_PREFIX=aws-vault
-export AWS_VAULT_BACKEND=pass
-. $HOME/.asdf/asdf.sh
+#export AWS_VAULT_BACKEND=pass
+#. $HOME/.asdf/asdf.sh
+
+# rbenv
+export PATH=$PATH:$HOME/.rbenv/bin
+export RBENV_ROOT=$HOME/.rbenv
+export PATH=$RBENV_ROOT/shims:/versions:$PATH
