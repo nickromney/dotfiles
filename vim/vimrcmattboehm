@@ -1,0 +1,465 @@
+"Settings {{{
+set background=dark
+set backspace=2
+set display+=lastline
+set hlsearch
+set modeline
+set mouse=a
+set number 
+set t_Co=256
+set laststatus=2
+set exrc
+set secure
+
+set completeopt+=menuone
+set completeopt+=noinsert
+set completeopt-=preview
+
+nnoremap <SPACE> <Nop>
+let mapleader=" "
+let localleader=" "
+
+syntax on
+filetype plugin on
+
+if has("nvim")
+  set inccommand=split
+endif
+" Backups {{{
+" (thanks Steve Losh)
+set backup
+set swapfile
+set undofile
+
+set undodir=~/.vim/tmp/undo//
+set backupdir=~/.vim/tmp/backup//
+set directory=~/.vim/tmp/swap//
+
+" Make those folders automatically if they don't already exist.
+if !isdirectory(expand(&undodir))
+    call mkdir(expand(&undodir), "p")
+endif
+if !isdirectory(expand(&backupdir))
+    call mkdir(expand(&backupdir), "p")
+endif
+if !isdirectory(expand(&directory))
+    call mkdir(expand(&directory), "p")
+endif
+"}}}
+"}}}
+"Plugins {{{
+call plug#begin()
+"Clear highlighted search term when cursor moves
+Plug 'haya14busa/is.vim'
+"Highlight all results when using incsearch
+Plug 'haya14busa/incsearch.vim'
+Plug 'osyo-manga/vim-anzu' "{{{
+map n <Plug>(is-nohl)<Plug>(anzu-n-with-echo)
+map N <Plug>(is-nohl)<Plug>(anzu-N-with-echo)
+"}}}
+"Test framework for vim script
+Plug 'junegunn/vader.vim'
+"Visuals:
+Plug 'vim-airline/vim-airline'
+Plug 'nathanaelkane/vim-indent-guides'
+"Highlight all occurrences of the word under the cursor
+Plug 'osyo-manga/vim-brightest'
+"Colorscheme
+Plug 'ciaranm/inkpot'
+" Sonokai theme
+Plug 'sainnhe/sonokai'
+"Colorscheme
+Plug 'vim-scripts/wombat256.vim'
+"Decorate vim with fancy unicode characters. May delete.
+Plug 'ryanoasis/vim-devicons'
+
+" Navigate and manipulate files in a tree view.
+Plug 'lambdalisue/fern.vim'
+Plug 'lambdalisue/fern-mapping-mark-children.vim'
+Plug 'antoinemadec/FixCursorHold.nvim'
+
+" .............................................................................
+" lambdalisue/fern.vim
+" .............................................................................
+
+" Disable netrw.
+let g:loaded_netrw  = 1
+let g:loaded_netrwPlugin = 1
+let g:loaded_netrwSettings = 1
+let g:loaded_netrwFileHandlers = 1
+
+augroup my-fern-hijack
+  autocmd!
+  autocmd BufEnter * ++nested call s:hijack_directory()
+augroup END
+
+function! s:hijack_directory() abort
+  let path = expand('%:p')
+  if !isdirectory(path)
+    return
+  endif
+  bwipeout %
+  execute printf('Fern %s', fnameescape(path))
+endfunction
+
+" Custom settings and mappings.
+let g:fern#disable_default_mappings = 1
+
+noremap <silent> <Leader>f :Fern . -drawer -reveal=% -toggle -width=35<CR><C-w>=
+
+function! FernInit() abort
+  nmap <buffer><expr>
+        \ <Plug>(fern-my-open-expand-collapse)
+        \ fern#smart#leaf(
+        \   "\<Plug>(fern-action-open:select)",
+        \   "\<Plug>(fern-action-expand)",
+        \   "\<Plug>(fern-action-collapse)",
+        \ )
+  nmap <buffer> <CR> <Plug>(fern-my-open-expand-collapse)
+  nmap <buffer> <2-LeftMouse> <Plug>(fern-my-open-expand-collapse)
+  nmap <buffer> n <Plug>(fern-action-new-path)
+  nmap <buffer> d <Plug>(fern-action-remove)
+  nmap <buffer> m <Plug>(fern-action-move)
+  nmap <buffer> M <Plug>(fern-action-rename)
+  nmap <buffer> h <Plug>(fern-action-hidden-toggle)
+  nmap <buffer> r <Plug>(fern-action-reload)
+  nmap <buffer> k <Plug>(fern-action-mark)
+  nmap <buffer> K <Plug>(fern-action-mark-children:leaf)
+  nmap <buffer> b <Plug>(fern-action-open:split)
+  nmap <buffer> v <Plug>(fern-action-open:vsplit)
+  nmap <buffer><nowait> < <Plug>(fern-action-leave)
+  nmap <buffer><nowait> > <Plug>(fern-action-enter)
+endfunction
+
+augroup FernGroup
+  autocmd!
+  autocmd FileType fern call FernInit()
+augroup END
+
+" in millisecond, used for both CursorHold and CursorHoldI,
+" use updatetime instead if not defined
+let g:cursorhold_updatetime = 100
+
+
+"Text Objects:
+"Utilities for user-defined text objects
+Plug 'kana/vim-textobj-user'
+"Text objects for indentation levels
+Plug 'kana/vim-textobj-indent'
+
+"Essentials: simple extensions of vim functionality
+"Like f, but you provide 2 characters instead of 1
+"Provides improvements to f/t
+Plug 'justinmk/vim-sneak' "{{{
+let g:sneak#s_next = 1
+map f <Plug>Sneak_f
+map F <Plug>Sneak_F
+map t <Plug>Sneak_t
+map T <Plug>Sneak_T
+"}}}
+"Motions for "surrounding" characters
+Plug 'tpope/vim-surround'
+"Edit your quickfix list as if it were a buffer
+Plug 'stefandtw/quickfix-reflector.vim'
+"Enable multi-edit operations like vim-surround's to be repeated with a single '.'
+Plug 'tpope/vim-repeat'
+"<c-a>/<c-x> to increment/decrement dates
+Plug 'tpope/vim-speeddating'
+"<c-a>/<c-x> to toggle between true/false and others
+Plug 'andrewradev/switch.vim' "{{{
+	let g:switch_mapping = ""
+	" Don't use default mappings
+	let g:speeddating_no_mappings = 1
+
+	" Avoid issues because of us remapping <c-a> and <c-x> below
+	nnoremap <Plug>SpeedDatingFallbackUp <c-a>
+	nnoremap <Plug>SpeedDatingFallbackDown <c-x>
+
+	" Manually invoke speeddating in case switch didn't work
+	nnoremap <c-a> :if !switch#Switch() <bar>
+	      \ call speeddating#increment(v:count1) <bar> endif<cr>
+	nnoremap <c-x> :if !switch#Switch({'reverse': 1}) <bar>
+	      \ call speeddating#increment(-v:count1) <bar> endif<cr>
+"}}}
+
+"Opening Files:
+"Browse parent directory with '-'
+Plug 'tpope/vim-vinegar'
+
+"Other:
+"Git integration
+Plug 'tpope/vim-fugitive' | Plug 'tommcdo/vim-fugitive-blame-ext' "{{{
+    "Fugitive mappings
+    nnoremap <leader>gs :Gstatus<CR>
+    nnoremap <leader>gc :Gcommit<CR>
+    nnoremap <leader>gd :Gdiff<CR>
+    nnoremap <leader>gw :Gwrite<CR>
+    nnoremap <leader>gr :Gread<CR>
+    nnoremap <leader>gl :Glog --reverse<CR>
+    nnoremap <leader>gp :Git push<CR>
+    nnoremap <leader>gb :Gblame<CR>
+    nnoremap <leader>gB :Gbrowse<CR>
+    nnoremap <leader>ga :tab sp \| Gvedit :1 \| windo diffthis<CR>
+
+    "Fugitive extensions
+    nnoremap <silent> <leader>gm :tab sp<CR>:Glistmod<CR>
+    nnoremap <silent> ]d :call g:DiffNextLoc()<CR>
+    nnoremap <silent> [d :call g:DiffPrevLoc()<CR>
+    function! g:ViewCommits(num_commits)
+        let commit=0
+        while commit < a:num_commits
+            execute "Gedit HEAD~".commit
+            topleft vsp
+            let commit += 1
+        endwhile
+        q
+    endfunction
+
+    command! Glistmod only | call g:ListModified() | Gdiff
+    function! g:ListModified()
+        let old_makeprg=&makeprg
+        "let &makeprg = "git diff --cached --name-only"
+        let &makeprg = "git ls-files -m"
+        let old_errorformat=&errorformat
+        let &errorformat="%f"
+        lmake
+        let &makeprg=old_makeprg
+        let &errorformat=old_errorformat
+    endfunction
+
+    function! g:DiffNextLoc()
+        windo set nodiff
+        only
+        lnext
+        Gdiff
+    endfunction
+    function! g:DiffPrevLoc()
+        windo set nodiff
+        only
+        lprevious
+        Gdiff
+    endfunction
+    "}}}
+"Git commit browser
+Plug 'junegunn/gv.vim'
+"Common unix commands in vim, e.g. :Move to rename a buffer and move the file
+"on disk simultaneously
+Plug 'tpope/vim-eunuch'
+"Toggle comments
+Plug 'scrooloose/nerdcommenter'
+"Improved grep
+Plug 'jremmen/vim-ripgrep' "{{{
+    nnoremap <leader>a :Rg<space>
+"}}}
+"Visually browse undo history
+Plug 'sjl/gundo.vim'
+"Window manager for splits
+Plug 'mattboehm/vim-accordion'
+"Preview markdown rendering in a browser window
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+"}}}
+"Commands for resizing/creating splits based on size of selection
+Plug 'wellle/visual-split.vim'
+"Show all the indentation ancestors of the current line in a popup menu above
+"the window
+Plug 'wellle/context.vim'
+"Kite settings {{{
+let g:kite_tab_complete=1
+"}}}
+call plug#end()
+"}}}
+"FileType settings {{{
+augroup mb_filetype
+	autocmd!
+	autocmd FileType brainfuck xmap <buffer> R "xygv*;%s;;<c-r>x;g<left><left>
+	autocmd FileType yaml nnoremap <buffer> <CR> :AnsibleDoc<CR>
+	autocmd FileType python iabbrev <buffer> im import
+	autocmd FileType python iabbrev <buffer> rt return
+	autocmd FileType python iabbrev <buffer> yl yield
+	autocmd FileType python iabbrev <buffer> fa False
+	autocmd FileType python iabbrev <buffer> tr True
+	autocmd FileType python iabbrev <buffer> br break
+	autocmd FileType python nnoremap <buffer> <cr> :silent w<bar>only<bar>vsp<bar>term ipython3 -i %<cr>
+augroup end
+"}}}
+"Color schemes {{{
+if has("gui_running")
+  colorscheme inkpot
+else
+  colorscheme sonokai
+endif
+"}}}
+"Key mapping {{{
+nnoremap ; :
+xnoremap ; :
+xnoremap : ;
+
+"use jj to escape from insert mode
+inoremap jj <esc>
+"h is in the j position on dvorak keyboards
+"inoremap hh <esc>
+
+"in insert mode, qq opens the preview window to the word just typed
+inoremap qq <esc>b:ptag <c-r><c-w><cr><c-w>Pzt<c-w>pgi
+
+"select previous/next matching word
+"not sure yet if these key combos are rare enough in insert mode
+inoremap ,. <c-p><c-y>
+inoremap ., <c-n><c-y>
+inoremap oeu <c-x><c-l>
+
+"x escapes visual mode
+xnoremap x <Esc>
+"vv selects til end of line (not incl newline)
+vnoremap v $h
+"Y in visual mode copies to selection clipboard
+vnoremap Y "*y
+
+"make Y behave more like C and D
+nnoremap Y y$
+
+"complete lines
+inoremap <C-Space> <C-X><C-L>
+
+"gp selects code that was just pasted in the visual mode last used
+nnoremap <expr> gp  '`[' . strpart(getregtype(), 0, 1) . '`]'
+
+"clear highlight search
+nmap <silent> <leader><space> :nohlsearch<CR>
+
+"swap highlighted text with last deleted text
+xnoremap <C-x> <Esc>`.``gvP``P
+
+"gp selects code that was just pasted in the visual mode last used
+nnoremap <expr> gp  '`[' . strpart(getregtype(), 0, 1) . '`]'
+
+"z-Up/Down goes to top/bottom of current fold
+nnoremap z<Up> [z
+nnoremap z<Down> ]z
+
+"Tabs and Splits {{{
+"when opening files in splits/tabs, I first split the current buffer into a
+"new vsplit/tab and then open the new file with whatever method suits me.
+
+"Ctrl-\ opens a vsplit
+"I remember this because shift-\ is | which looks like a vertical split.
+nnoremap <C-\> :vsp<CR>
+"tab handling
+nnoremap <leader>t :tab sp<CR>
+nnoremap <leader>w :tabc<CR>
+
+"Ctrl-Shift-ArrowKeys = resize active split
+nnoremap <C-S-Left> <C-W><lt>
+nnoremap <C-S-Right> <C-W>>
+nnoremap <C-S-Up> <C-W>+
+nnoremap <C-S-Down> <C-W>-
+
+"Ctrl-ArrowKeys = move between splits
+nnoremap <C-Left> <C-W><left>
+nnoremap <C-Right> <C-W><right>
+nnoremap <C-Up> <C-W><up>
+nnoremap <C-Down> <C-W><down>
+"}}}
+"ctrl-j/k to jump between 'compiler' messages
+nnoremap <silent> <C-j> :cn<CR>
+nnoremap <silent> <C-k> :cp<CR>
+
+"open vimrc in new tab
+"if ~/.vimrc is a symlink, it resolves the symlink before opening so that
+"fugitive is happy
+nnoremap <leader>ve :execute "tab sp" resolve(expand("~/.vim/vimrc"))<CR>
+"open pentadactyl config
+nnoremap <leader>vf :execute "tab sp" resolve(expand("~/.pentadactylrc"))<CR>
+
+nnoremap <leader>vp :execute "tab sp" resolve(expand("~/.vim/bundle/mbpython/ftplugin/python.vim"))<CR>
+
+"reload vimrc
+nnoremap <leader>vv :source ~/.vim/vimrc<CR>
+"edit snippets
+nnoremap <leader>vs :tab sp <bar> UltiSnipsEdit!<CR>
+
+"Redo the syntax highlighting
+nnoremap <leader>U :syntax sync fromstart<cr>:redraw!<cr>
+
+
+"Replace current search term globally (or in selection)
+"Using ctrl-underscore as the separator as it seems less likely to conflict
+"with a character you'd want to put in the replacement text
+nnoremap <leader>r :%sg<left><left>
+xnoremap <leader>r :sg<left><left>
+"When searching for a term, you can hit ctrl-s to switch to replacement mode
+"This will not work if your terminal gobbles ctrl-s but I'm hard-pressed to
+"find a safer sequence to map
+cnoremap <c-s> <cr>:%sg<left><left>
+
+"F2 toggles line numbers
+nnoremap <silent> <F2> :set number!<CR>
+
+"save a copy of this file in the current dir with the same extension and hit
+"enter. after the combo, just type the new name without the extension
+nnoremap <leader>C :saveas %:h/.%:e<left><left><left><left>
+
+function! g:DiffToggle()
+  if &diff
+    diffoff
+  else
+    diffthis
+  endif
+endfunction
+
+"Toggle diff for current window
+nnoremap <silent> <leader>d :call g:DiffToggle()<CR>
+
+"Space toggles folds
+nnoremap <Space> za
+
+"Advent of code helper: write input from clipboard to the input file
+nnoremap <F10> :tabnew<cr>V"+p:w! input<cr>:wq!<cr>
+map <F9> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '> trans<'
+\ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
+\ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<CR>
+
+tnoremap <c-w> <c-\><c-n><c-w>
+tnoremap <F12> <c-\><c-n><c-w><c-w>
+"Ctrl-ArrowKeys = move between splits
+tnoremap <c-left> <c-\><c-n><c-w><left>
+tnoremap <c-right> <c-\><c-n><c-w><right>
+tnoremap <c-up> <c-\><c-n><c-w><up>
+tnoremap <c-down> <c-\><c-n><c-w><down>
+"Visual Mode */# from Scrooloose via Steve Losh {{{
+function! s:VSetSearch()
+  let temp = @@
+  norm! gvy
+  let @/ = '\V' . substitute(escape(@@, '\'), '\n', '\\n', 'g')
+  let @@ = temp
+endfunction
+
+vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR><c-o>
+vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
+"}}}
+"Abbreviations {{{
+iabbrev impl implementation
+iabbrev secc security
+cabbrev jj r !grep jj /usr/share/dict/words
+"}}}
+"}}}
+"Commands {{{
+
+"ScratchBuffer: opens an unnamed buffer that doesn't need to be saved
+command! ScratchBuffer setlocal buftype=nofile bufhidden=hide noswapfile
+
+"DiffOrig: opens a diff between the current buffer and the saved version
+command! DiffOrig vert new | set bt=nofile | r # | 0d_ | diffthis
+	 	\ | wincmd p | diffthis
+
+
+"AnsibleDoc: Get the ansible documentation for the word under the cursor
+command! AnsibleDoc tab sp | let ztmp=@z | exe 'norm "zyiw' | vnew | exe 'ScratchBuffer' | exe 'r! ansible-doc '.@z | let @z = ztmp | norm ggdd
+
+"Presentation: Settings for a presentation
+command! Presentation highlight Hidden ctermfg=black ctermbg=none | syntax match Hidden /{{{/ | syntax match Hidden /}}}/ | exe 'nnore <s-down> zczjzozt' | exe 'nnore <s-up> zczk%zozt'
+
+"Reveal: Show only the first line of a file and remap space to revealing the other lines
+command! Reveal silent only | botright new | wincmd k | 999 wincmd - | nnoremap <lt>space> <lt>c-w>+
+"}}}
+" vim:foldmethod=marker
