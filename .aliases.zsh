@@ -80,6 +80,7 @@ alias ...='cd ../..'
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
 
-alias cdaa="cd ~/work/aa"
+alias cdaa="cd ~/work/aa-plumbus"
 
 alias awsp="source _awsp"
+alias k="kubectl"

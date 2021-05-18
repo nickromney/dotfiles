@@ -89,3 +89,9 @@ export AWS_VAULT_PASS_PREFIX=aws-vault
 export PATH=$PATH:$HOME/.rbenv/bin
 export RBENV_ROOT=$HOME/.rbenv
 export PATH=$RBENV_ROOT/shims:/versions:$PATH
+
+# brew
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+# Alex Ellis Arkade
+export PATH=$PATH:$HOME/.arkade/bin/
